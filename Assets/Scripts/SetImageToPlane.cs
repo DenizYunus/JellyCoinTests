@@ -7,8 +7,9 @@ using System.IO;
 public class SetImageToPlane : MonoBehaviour
 {
     public GameObject plane;
+    public Timer timer;
 
-    void Start()
+    public void PickImage()
     {
         if (NativeGallery.CheckPermission(NativeGallery.PermissionType.Read) == NativeGallery.Permission.ShouldAsk || NativeGallery.CheckPermission(NativeGallery.PermissionType.Read) == NativeGallery.Permission.Denied)
         {
@@ -19,23 +20,20 @@ public class SetImageToPlane : MonoBehaviour
             NativeGallery.GetImageFromGallery(MediaPicked, "", "image/*");
     }
 
-    void Update()
-    {
-        
-    }
-
     public void MediaPicked(string path)
     {
-        Debug.Log("Media Picked Entered.");
-        byte[] byteArray = File.ReadAllBytes(path);
-        Texture2D texture = new Texture2D(1024, 1024);
-        texture.LoadImage(byteArray);
-        Debug.Log("Texture created.");
-        //Sprite s = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1f);
+        if (path != null)
+        {
+            byte[] byteArray = File.ReadAllBytes(path);
+            Texture2D texture = new Texture2D(1024, 1024);
+            texture.LoadImage(byteArray);         
 
-        Material material = new Material(plane.GetComponent<MeshRenderer>().material);
-        material.mainTexture = texture;
+            Material material = new Material(plane.GetComponent<MeshRenderer>().material);
+            material.mainTexture = texture;
 
-        plane.GetComponent<MeshRenderer>().material = material;
+            plane.GetComponent<MeshRenderer>().material = material;
+
+            timer.StartTimer();
+        }
     }
 }

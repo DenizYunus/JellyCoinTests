@@ -7,19 +7,26 @@ public class Timer : MonoBehaviour
 {
     public Text timerText;
     private float startTime;
-    void Start()
+    public bool timerRunning = false;
+
+    float timePassed;
+
+    public void StartTimer()
     {
         startTime = Time.time;
+        timerRunning = true;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        float t = Time.time - startTime;
-        
-        string minutes = ((int)t / 60).ToString();
-        string seconds = (t % 60).ToString("f2");
+        if (timerRunning)
+        {
+            timePassed = Time.time - startTime;
 
-        timerText.text = minutes + ":" + seconds;
+            string minutes = ((int)timePassed / 60).ToString();
+            string seconds = (timePassed % 60).ToString("f2");
+
+            timerText.text = minutes + ":" + seconds;
+        }
     }
 }

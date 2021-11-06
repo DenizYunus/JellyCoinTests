@@ -14,15 +14,17 @@ public class PlayFabLogin : MonoBehaviour
 
     public Text commonNotificationText;
 
+    public GameObject entrancePanel;
+    public GameObject gamePanel;
+
+    public Timer timer;
+
     public void Start()
     {
         if (string.IsNullOrEmpty(PlayFabSettings.TitleId))
         {
-            PlayFabSettings.TitleId = "322FD"; // Please change this value to your own titleId from PlayFab Game Manager
+            PlayFabSettings.TitleId = "322FD"; // titleId from PlayFab Game Manager
         }
-        
-        //var request = new LoginWithCustomIDRequest { CustomId = "GettingStartedGuide", CreateAccount = true };
-        //PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
     }
 
     public void LoginWithEmail()
@@ -40,7 +42,10 @@ public class PlayFabLogin : MonoBehaviour
 
     private void OnLoginSuccess(LoginResult result)
     {
-        commonNotificationText.text = "Login Successful";        
+        commonNotificationText.text = "Login Successful";
+        timer.StartTimer();
+        entrancePanel.SetActive(false);
+        gamePanel.SetActive(true);
     }
 
     private void OnLoginFailure(PlayFabError error)

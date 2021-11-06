@@ -8,19 +8,14 @@ public class GlobalTouch : MonoBehaviour
     public static int CurrentStep = 60;
     public int InternalStep;
     public Text Steps;
-    bool reachTheZero = false; 
+    public static bool reachedZero = false;
 
     public void Update()
     {
-        if (reachTheZero == false)
+        if (reachedZero == false)
         {
             InternalStep = CurrentStep;
             Steps.text = "" + InternalStep;
-            if (CurrentStep == 0)
-            {
-                Debug.Log("Your steps finish!");
-                reachTheZero = true;
-            }
         }
     }
 }

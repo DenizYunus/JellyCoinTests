@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using PlayFab;
+using PlayFab.ClientModels;
 
 [DefaultExecutionOrder(-1)]
 public class InputManager : Singleton<InputManager>
@@ -12,6 +14,8 @@ public class InputManager : Singleton<InputManager>
     public event EndTouchEvent OnEndTouch;
 
     private TouchControls touchControls;
+
+    public Timer timer;
 
     private void Awake()
     {
@@ -36,13 +40,33 @@ public class InputManager : Singleton<InputManager>
 
     private void StartTouch(InputAction.CallbackContext context)
     {
-        Debug.Log("Touch started" + touchControls.Touch.TouchPosition.ReadValue<Vector2>());
-        if (OnStartTouch != null) OnStartTouch(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.startTime);
-        GlobalTouch.CurrentStep -= 1;
+        if (GlobalTouch.reachedZero == false)
+        {
+            //Debug.Log("Touch started and have moves." + touchControls.Touch.TouchPosition.ReadValue<Vector2>());
+            if (OnStartTouch != null) OnStartTouch(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.startTime);
+
+            if (timer.timerRunning)
+                GlobalTouch.CurrentStep -= 1;
+
+            if (GlobalTouch.CurrentStep == 0)
+            {
+                GlobalTouch.reachedZero = true;
+                timer.timerRunning = false;
+
+                PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
+                {
+                    Statistics = new List<StatisticUpdate> {
+                        new StatisticUpdate { StatisticName = "CompleteTime", Value = 45 }, }
+                },
+                (text) => Debug.Log(text),
+                (error) => Debug.Log(error.GenerateErrorReport()));
+            }
+        }
     }
+
     private void EndTouch(InputAction.CallbackContext context)
     {
-        Debug.Log("Touch ended" + touchControls.Touch.TouchPosition.ReadValue<Vector2>());
+        //Debug.Log("Touch ended" + touchControls.Touch.TouchPosition.ReadValue<Vector2>());
         if (OnEndTouch != null) OnEndTouch(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.time);
     }
 }
