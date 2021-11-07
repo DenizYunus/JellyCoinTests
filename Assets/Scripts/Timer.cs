@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public class Timer : MonoBehaviour
 {
     public Text timerText;
-    private float startTime;
-    public bool timerRunning = false;
+    private static float startTime;
+    public static bool timerRunning = false;
 
-    float timePassed;
+    public static float timePassed;
 
-    public void StartTimer()
+    public static void StartTimer()
     {
         startTime = Time.time;
         timerRunning = true;

@@ -7,7 +7,6 @@ using System.IO;
 public class SetImageToPlane : MonoBehaviour
 {
     public GameObject plane;
-    public Timer timer;
 
     public void PickImage()
     {
@@ -33,7 +32,8 @@ public class SetImageToPlane : MonoBehaviour
 
             plane.GetComponent<MeshRenderer>().material = material;
 
-            timer.StartTimer();
+            Timer.StartTimer();
+            GlobalTouch.countingTouches = true;
         }
     }
 }

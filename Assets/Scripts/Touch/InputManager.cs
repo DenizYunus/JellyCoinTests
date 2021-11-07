@@ -40,23 +40,23 @@ public class InputManager : Singleton<InputManager>
 
     private void StartTouch(InputAction.CallbackContext context)
     {
-        if (GlobalTouch.reachedZero == false)
+        if (GlobalTouch.countingTouches == true)
         {
             //Debug.Log("Touch started and have moves." + touchControls.Touch.TouchPosition.ReadValue<Vector2>());
             if (OnStartTouch != null) OnStartTouch(touchControls.Touch.TouchPosition.ReadValue<Vector2>(), (float)context.startTime);
 
-            if (timer.timerRunning)
+            if (Timer.timerRunning)
                 GlobalTouch.CurrentStep -= 1;
 
             if (GlobalTouch.CurrentStep == 0)
             {
-                GlobalTouch.reachedZero = true;
-                timer.timerRunning = false;
+                GlobalTouch.countingTouches = false;
+                Timer.timerRunning = false;
 
                 PlayFabClientAPI.UpdatePlayerStatistics(new UpdatePlayerStatisticsRequest
                 {
                     Statistics = new List<StatisticUpdate> {
-                        new StatisticUpdate { StatisticName = "CompleteTime", Value = 45 }, }
+                        new StatisticUpdate { StatisticName = "CompleteTime", Value = Mathf.FloorToInt(Timer.timePassed) }, }
                 },
                 (text) => Debug.Log(text),
                 (error) => Debug.Log(error.GenerateErrorReport()));
