@@ -9,6 +9,8 @@ public class GeneralInfo : Singleton<GeneralInfo>
 
     public static int coinCount;
 
+    public static string playFabId;
+
     void Start()
     {
         DontDestroyOnLoad(gameObject);
