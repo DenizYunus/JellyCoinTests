@@ -11,10 +11,10 @@ public class LevelButtonContainer : MonoBehaviour
     public Image bitmapImage;
     public Text coinCount;
 
-    public void UpdateContainer(string _levelname, string _bitmapLink, string _imageLink)
+    public IEnumerator UpdateContainer(string _levelname, string _bitmapLink, string _imageLink)
     {
         levelname = _levelname;
-        StartCoroutine(setImage(_bitmapLink, (result =>
+        yield return StartCoroutine(setImage(_bitmapLink, (result =>
         {
             Sprite sp = Sprite.Create(result, new Rect(0, 0, result.width, result.height), new Vector2(0.5f, 0.5f));
             bitmapImage.overrideSprite = sp;

@@ -17,6 +17,8 @@ public class MenuManager : Singleton<MenuManager>
 
     public Image selectedLevelImage;
 
+    public GameObject levelsLoadingPanel;
+
     void Start()
     {
         LoadLevels();
@@ -29,15 +31,11 @@ public class MenuManager : Singleton<MenuManager>
                 if (result.Data == null || !result.Data.ContainsKey("levelsdata")) Debug.Log("No Level Data");
                 else
                 {
+                    levelsLoadingPanel.SetActive(true);
                     levelsData = result.Data["levelsdata"];
                     Debug.Log(levelsData);
                     ParsedJSONClass p = ParsedJSONClass.CreateFromJSON(levelsData);
-                    foreach (LevelData ld in p.levels)
-                    {
-                        Debug.Log(LeaderboardItemPrefab == null);
-                        GameObject instantiatedPrefab = Instantiate(LeaderboardItemPrefab, LeaderboardItemContainer);
-                        instantiatedPrefab.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage);
-                    }
+                    StartCoroutine(LoadLevelButtons(p));
                 }
             },
             error => {
@@ -47,6 +45,16 @@ public class MenuManager : Singleton<MenuManager>
         );
     }
 
+    IEnumerator LoadLevelButtons(ParsedJSONClass p)
+    {
+        foreach (LevelData ld in p.levels)
+        {
+            Debug.Log(LeaderboardItemPrefab == null);
+            GameObject instantiatedPrefab = Instantiate(LeaderboardItemPrefab, LeaderboardItemContainer);
+            yield return StartCoroutine(instantiatedPrefab.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
+        }
+        levelsLoadingPanel.SetActive(false);
+    }
 }
 
 
