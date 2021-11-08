@@ -2,17 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GeneralInfo : Singleton<GeneralInfo>
+public class GeneralInfo : MonoBehaviour
 {
-    public static string username;
-    public static string email;
+    public static GeneralInfo Instance = null;
 
-    public static int coinCount;
+    public string username;
+    public string email;
 
-    public static string playFabId;
+    public int coinCount;
 
-    void Start()
+    public string playFabId;
+
+    void Awake()
     {
-        DontDestroyOnLoad(gameObject);
+        if (!Instance)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

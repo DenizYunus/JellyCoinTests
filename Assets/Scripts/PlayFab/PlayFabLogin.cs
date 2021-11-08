@@ -3,6 +3,8 @@ using PlayFab.ClientModels;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
+using System;
 
 public class PlayFabLogin : MonoBehaviour
 {
@@ -41,13 +43,43 @@ public class PlayFabLogin : MonoBehaviour
     }
 
 
-    private void OnLoginSuccess(LoginResult result)
+    private void OnLoginSuccess(LoginResult loginResult)
     {
-        GeneralInfo.email = loginEmailText.text;
-        //GeneralInfo.username = result.InfoResultPayload.PlayerProfile.DisplayName;
+        GeneralInfo.Instance.email = loginEmailText.text;
 
-        commonNotificationText.text = "Login Successful";
-        UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+        PlayFabClientAPI.GetPlayerProfile(new GetPlayerProfileRequest() //GET PLAYER PROFILE
+        {
+            PlayFabId = loginResult.PlayFabId,
+            ProfileConstraints = new PlayerProfileViewConstraints()
+            {
+                ShowDisplayName = true
+            }
+        }, result => {  //GOT PLAYER PROFILE
+            GeneralInfo.Instance.username = result.PlayerProfile.DisplayName;
+
+            PlayFabClientAPI.GetUserData(new GetUserDataRequest() //GET USER DATA
+            {
+                PlayFabId = loginResult.PlayFabId,
+                Keys = null
+            }, result => { //GOT USER DATA
+                if (result.Data == null || !result.Data.ContainsKey("CoinCount"))
+                {
+                    PlayFabClientAPI.UpdateUserData(new UpdateUserDataRequest()
+                    {
+                        Data = new Dictionary<string, string>() { { "CoinCount", "0" } } // CREATE FIRST COIN ON PLAYFAB
+                    }, result => { GeneralInfo.Instance.coinCount = 0; }, error => { Debug.Log("Error: " + error.GenerateErrorReport()); });
+                }
+
+                else GeneralInfo.Instance.coinCount = Convert.ToInt32(result.Data["CoinCount"].Value); // GET PRE-CREATED COIN FROM PLAYFAB
+            }, (error) => {
+                Debug.Log("Got error retrieving user data:");
+                Debug.Log(error.GenerateErrorReport());
+            });
+
+            commonNotificationText.text = "Login Successful";
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+        }, error => Debug.Log("Error: " + error.GenerateErrorReport()));
     }
 
     private void OnLoginFailure(PlayFabError error)
@@ -59,8 +91,9 @@ public class PlayFabLogin : MonoBehaviour
 
     private void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
-        GeneralInfo.email = registerEmailText.text;
-        GeneralInfo.username = registerUsernameText.text;
+        GeneralInfo.Instance.email = registerEmailText.text;
+        GeneralInfo.Instance.username = registerUsernameText.text;
+        GeneralInfo.Instance.coinCount = 0;
 
         commonNotificationText.text = "Register Successful";
 

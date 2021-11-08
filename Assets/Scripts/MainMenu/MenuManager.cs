@@ -4,6 +4,7 @@ using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine.UI;
+using TMPro;
 
 public class MenuManager : Singleton<MenuManager>
 {
@@ -13,15 +14,21 @@ public class MenuManager : Singleton<MenuManager>
     public GameObject LeaderboardItemPrefab;
     public Transform LeaderboardItemContainer;
 
-    public string levelsData;
-
-    public Image selectedLevelImage;
+    [HideInInspector]public string levelsData;
+    [HideInInspector]public Image selectedLevelImage;
 
     public GameObject levelsLoadingPanel;
+
+    [Space(15f)]
+    public TMP_Text usernameText;
+    public TMP_Text coinText;
 
     void Start()
     {
         LoadLevels();
+        Debug.Log(GeneralInfo.Instance.username);
+        usernameText.text = GeneralInfo.Instance.username;
+        coinText.text = GeneralInfo.Instance.coinCount.ToString();
     }
 
     public void LoadLevels()
@@ -49,11 +56,15 @@ public class MenuManager : Singleton<MenuManager>
     {
         foreach (LevelData ld in p.levels)
         {
-            Debug.Log(LeaderboardItemPrefab == null);
             GameObject instantiatedPrefab = Instantiate(LeaderboardItemPrefab, LeaderboardItemContainer);
             yield return StartCoroutine(instantiatedPrefab.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
         }
         levelsLoadingPanel.SetActive(false);
+    }
+
+    public void UpdateCoin()
+    {
+        coinText.text = GeneralInfo.Instance.coinCount.ToString();
     }
 }
 
