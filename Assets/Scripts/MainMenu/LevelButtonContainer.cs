@@ -24,7 +24,7 @@ public class LevelButtonContainer : MonoBehaviour
             StartCoroutine(setImage(_imageLink, (result =>
             {
                 Sprite sp = Sprite.Create(result, new Rect(0, 0, result.width, result.height), new Vector2(0.5f, 0.5f));
-                MenuManager.Instance.selectedLevelImage.overrideSprite = sp;
+                FindObjectOfType<HardTransforms>().selectedLevelImage.overrideSprite = sp;
             }
             )));
         });
@@ -42,15 +42,6 @@ public class LevelButtonContainer : MonoBehaviour
         {
             texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
         }
-
-        /*
-        Texture2D texture = new Texture2D(256, 256);
-        WWW www = new WWW(url);
-        yield return www;
-
-        www.LoadImageIntoTexture(texture);
-        www.Dispose();
-        www = null;*/
 
         if (callback != null) callback(texture);
     }

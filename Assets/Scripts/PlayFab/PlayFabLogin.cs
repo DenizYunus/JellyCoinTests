@@ -71,14 +71,15 @@ public class PlayFabLogin : MonoBehaviour
                 }
 
                 else GeneralInfo.Instance.coinCount = Convert.ToInt32(result.Data["CoinCount"].Value); // GET PRE-CREATED COIN FROM PLAYFAB
+
+                commonNotificationText.text = "Login Successful";
+
+                UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+
             }, (error) => {
                 Debug.Log("Got error retrieving user data:");
                 Debug.Log(error.GenerateErrorReport());
             });
-
-            commonNotificationText.text = "Login Successful";
-
-            UnityEngine.SceneManagement.SceneManager.LoadScene(1);
         }, error => Debug.Log("Error: " + error.GenerateErrorReport()));
     }
 

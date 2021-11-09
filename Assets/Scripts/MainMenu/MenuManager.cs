@@ -5,30 +5,43 @@ using PlayFab;
 using PlayFab.ClientModels;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-public class MenuManager : Singleton<MenuManager>
+public class MenuManager : MonoBehaviour//Singleton<MenuManager>
 {
+    public static MenuManager Instance;
+
     public GameObject levelButtonPrefab;
-    public Transform levelButtonsParent;
 
     public GameObject LeaderboardItemPrefab;
-    public Transform LeaderboardItemContainer;
 
     [HideInInspector]public string levelsData;
-    [HideInInspector]public Image selectedLevelImage;
 
-    public GameObject levelsLoadingPanel;
+    [HideInInspector] public MapDetails selectedLevelMapDetails;
 
-    [Space(15f)]
-    public TMP_Text usernameText;
-    public TMP_Text coinText;
-
-    void Start()
+    private void Awake()
     {
-        LoadLevels();
-        Debug.Log(GeneralInfo.Instance.username);
-        usernameText.text = GeneralInfo.Instance.username;
-        coinText.text = GeneralInfo.Instance.coinCount.ToString();
+        if (!Instance)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.buildIndex == 1)
+        {
+            LoadLevels();
+            Debug.Log(GeneralInfo.Instance.username);
+            FindObjectOfType<HardTransforms>().usernameText.text = GeneralInfo.Instance.username;
+            FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
+        }
     }
 
     public void LoadLevels()
@@ -38,7 +51,7 @@ public class MenuManager : Singleton<MenuManager>
                 if (result.Data == null || !result.Data.ContainsKey("levelsdata")) Debug.Log("No Level Data");
                 else
                 {
-                    levelsLoadingPanel.SetActive(true);
+                    GameObject.FindObjectOfType<HardTransforms>().loadingPanel.gameObject.SetActive(true);
                     levelsData = result.Data["levelsdata"];
                     Debug.Log(levelsData);
                     ParsedJSONClass p = ParsedJSONClass.CreateFromJSON(levelsData);
@@ -56,15 +69,33 @@ public class MenuManager : Singleton<MenuManager>
     {
         foreach (LevelData ld in p.levels)
         {
-            GameObject instantiatedPrefab = Instantiate(LeaderboardItemPrefab, LeaderboardItemContainer);
-            yield return StartCoroutine(instantiatedPrefab.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
+            GameObject instantiatedLevelButton = Instantiate(levelButtonPrefab, FindObjectOfType<HardTransforms>().LevelButtonsParent);
+            yield return StartCoroutine(instantiatedLevelButton.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
+            instantiatedLevelButton.GetComponent<Button>().onClick.AddListener(delegate
+            {
+                selectedLevelMapDetails = ld.mapDetails;
+
+                foreach (Transform gobj in FindObjectOfType<HardTransforms>().LeaderboardButtonsParent)
+                {
+                    Destroy(gobj.gameObject);
+                }
+                PlayFabClientAPI.GetLeaderboard(new GetLeaderboardRequest { StartPosition = 0, StatisticName = ld.levelname + " time", MaxResultsCount = 20 },
+                    result =>
+                    {
+                        foreach (PlayerLeaderboardEntry player in result.Leaderboard)
+                        {
+                            GameObject instantiatedLeaderBoard = Instantiate(LeaderboardItemPrefab, FindObjectOfType<HardTransforms>().LeaderboardButtonsParent);
+                            instantiatedLeaderBoard.GetComponent<LeaderboardItemContainer>().setItem(player.DisplayName, player.StatValue.ToString());
+                        }
+                    }, error => Debug.LogError("Error: " + error.GenerateErrorReport()));
+            });
         }
-        levelsLoadingPanel.SetActive(false);
+        GameObject.FindObjectOfType<HardTransforms>().loadingPanel.SetActive(false);
     }
 
     public void UpdateCoin()
     {
-        coinText.text = GeneralInfo.Instance.coinCount.ToString();
+         FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
     }
 }
 
@@ -84,4 +115,17 @@ public class ParsedJSONClass
 public class LevelData
 {
     public string levelname, levelbitmap, levelimage;
+    public MapDetails mapDetails;
+}
+
+[System.Serializable]
+public class MapDetails
+{
+    public ObjectTransform[] players, obstacles;
+}
+
+[System.Serializable]
+public class ObjectTransform
+{
+    public int x, y, z, rx, ry, rz;
 }
