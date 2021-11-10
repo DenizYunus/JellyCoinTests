@@ -6,6 +6,7 @@ using PlayFab.ClientModels;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using static JSONDataParser;
 
 public class MenuManager : MonoBehaviour//Singleton<MenuManager>
 {
@@ -14,6 +15,8 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
     public GameObject levelButtonPrefab;
 
     public GameObject LeaderboardItemPrefab;
+
+    public GameObject AnnouncementItemPrefab;
 
     [HideInInspector]public string levelsData;
 
@@ -65,6 +68,31 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
         );
     }
 
+    public void UpdateAnnouncements()
+    {
+        PlayFabClientAPI.GetTitleData(new GetTitleDataRequest(),
+            result => {
+                if (result.Data == null || !result.Data.ContainsKey("announcements")) Debug.Log("No Announcement Data");
+                else
+                {
+                    GameObject.FindObjectOfType<HardTransforms>().notificationLoadingPanel.gameObject.SetActive(true);
+                    levelsData = result.Data["announcements"];
+                    AnnouncementParser p = AnnouncementParser.CreateFromJSON(levelsData);
+                    foreach (AnnouncementDetails ad in p.announcements)
+                    {
+                        GameObject instantiatedAnnouncement = Instantiate(AnnouncementItemPrefab, FindObjectOfType<HardTransforms>().AnnouncementsParent);
+                        instantiatedAnnouncement.GetComponent<AnnouncementContainer>().UpdateAnnouncement(ad.announcement, ad.date);
+                    }
+                    GameObject.FindObjectOfType<HardTransforms>().notificationLoadingPanel.gameObject.SetActive(false);
+                }
+            },
+            error => {
+                Debug.Log("Got error getting titleData:");
+                Debug.Log(error.GenerateErrorReport());
+            }
+        );
+    }
+
     IEnumerator LoadLevelButtons(ParsedJSONClass p)
     {
         foreach (LevelData ld in p.levels)
@@ -97,35 +125,4 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
     {
          FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
     }
-}
-
-
-[System.Serializable]
-public class ParsedJSONClass
-{
-    public LevelData[] levels;
-
-    public static ParsedJSONClass CreateFromJSON(string JsonString)
-    {
-        return JsonUtility.FromJson<ParsedJSONClass>(JsonString);
-    }
-}
-
-[System.Serializable]
-public class LevelData
-{
-    public string levelname, levelbitmap, levelimage;
-    public MapDetails mapDetails;
-}
-
-[System.Serializable]
-public class MapDetails
-{
-    public ObjectTransform[] players, obstacles;
-}
-
-[System.Serializable]
-public class ObjectTransform
-{
-    public int x, y, z, rx, ry, rz;
 }

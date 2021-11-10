@@ -7,8 +7,10 @@ using UnityEngine.UI;
 public class HardTransforms : MonoBehaviour
 {
     public GameObject loadingPanel;
+    public GameObject notificationLoadingPanel;
     public Transform LevelButtonsParent;
     public Transform LeaderboardButtonsParent;
+    public Transform AnnouncementsParent;
 
     public Image selectedLevelImage;
 
@@ -24,5 +26,10 @@ public class HardTransforms : MonoBehaviour
     public void UpdateCoin(int coinCount)
     {
         PlayFabCommonTasks.Instance.UpdateCoin(coinCount);
+    }
+
+    public void UpdateNotifications()
+    {
+        MenuManager.Instance.UpdateAnnouncements();
     }
 }
