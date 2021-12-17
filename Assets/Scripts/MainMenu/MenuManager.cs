@@ -58,7 +58,7 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
                     levelsData = result.Data["levelsdata"];
                     Debug.Log(levelsData);
                     ParsedJSONClass p = ParsedJSONClass.CreateFromJSON(levelsData);
-                    StartCoroutine(LoadLevelButtons(p));
+                    /*StartCoroutine(*/LoadLevelButtons(p);
                 }
             },
             error => {
@@ -93,12 +93,12 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
         );
     }
 
-    IEnumerator LoadLevelButtons(ParsedJSONClass p)
+    /*IEnumerator*/ void LoadLevelButtons(ParsedJSONClass p)
     {
         foreach (LevelData ld in p.levels)
         {
             GameObject instantiatedLevelButton = Instantiate(levelButtonPrefab, FindObjectOfType<HardTransforms>().LevelButtonsParent);
-            yield return StartCoroutine(instantiatedLevelButton.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
+            /*yield return StartCoroutine(*/instantiatedLevelButton.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage);
             instantiatedLevelButton.GetComponent<Button>().onClick.AddListener(delegate
             {
                 selectedLevelMapDetails = ld.mapDetails;
