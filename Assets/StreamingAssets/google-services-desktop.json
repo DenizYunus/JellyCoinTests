@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "512415241298",
+    "project_id": "jelly-coins",
+    "storage_bucket": "jelly-coins.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512415241298:android:d22f55c41ac3ef813afb8b",
+        "android_client_info": {
+          "package_name": "com.kuvars.jellycoins"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "512415241298-9u2m9bdm7s0d625v5r7tm8c03kjsp5q1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1E2_VxWlVGTvbVXoPktL90tFXHYnJVPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "512415241298-9u2m9bdm7s0d625v5r7tm8c03kjsp5q1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

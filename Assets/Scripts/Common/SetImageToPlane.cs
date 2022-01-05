@@ -1,13 +1,18 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if !PLATFORM_WEBGL
 using NativeGalleryNamespace;
+#endif
 using System.IO;
 
 public class SetImageToPlane : MonoBehaviour
 {
     public GameObject plane;
 
+    /*
+#if !PLATFORM_WEBGL
+    
     public void PickImage()
     {
         if (NativeGallery.CheckPermission(NativeGallery.PermissionType.Read) == NativeGallery.Permission.ShouldAsk || NativeGallery.CheckPermission(NativeGallery.PermissionType.Read) == NativeGallery.Permission.Denied)
@@ -36,4 +41,6 @@ public class SetImageToPlane : MonoBehaviour
             GlobalTouch.countingTouches = true;
         }
     }
+#endif
+    */
 }
