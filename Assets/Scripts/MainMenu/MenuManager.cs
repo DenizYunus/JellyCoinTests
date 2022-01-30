@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
-using UnityEngine.UI;
-using TMPro;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using static JSONDataParser;
 
 public class MenuManager : MonoBehaviour//Singleton<MenuManager>
@@ -18,7 +16,7 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
 
     public GameObject AnnouncementItemPrefab;
 
-    [HideInInspector]public string levelsData;
+    [HideInInspector] public string levelsData;
 
     [HideInInspector] public MapDetails selectedLevelMapDetails;
 
@@ -41,7 +39,6 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
         if (scene.buildIndex == 1)
         {
             LoadLevels();
-            Debug.Log(GeneralInfo.Instance.username);
             FindObjectOfType<HardTransforms>().usernameText.text = GeneralInfo.Instance.username;
             FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
         }
@@ -50,7 +47,8 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
     public void LoadLevels()
     {
         PlayFabClientAPI.GetTitleData(new GetTitleDataRequest(),
-            result => {
+            result =>
+            {
                 if (result.Data == null || !result.Data.ContainsKey("levelsdata")) Debug.Log("No Level Data");
                 else
                 {
@@ -58,10 +56,11 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
                     levelsData = result.Data["levelsdata"];
                     Debug.Log(levelsData);
                     ParsedJSONClass p = ParsedJSONClass.CreateFromJSON(levelsData);
-                    /*StartCoroutine(*/LoadLevelButtons(p);
+                    StartCoroutine(LoadLevelButtons(p));
                 }
             },
-            error => {
+            error =>
+            {
                 Debug.Log("Got error getting titleData:");
                 Debug.Log(error.GenerateErrorReport());
             }
@@ -71,7 +70,8 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
     public void UpdateAnnouncements()
     {
         PlayFabClientAPI.GetTitleData(new GetTitleDataRequest(),
-            result => {
+            result =>
+            {
                 if (result.Data == null || !result.Data.ContainsKey("announcements")) Debug.Log("No Announcement Data");
                 else
                 {
@@ -86,19 +86,20 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
                     GameObject.FindObjectOfType<HardTransforms>().notificationLoadingPanel.gameObject.SetActive(false);
                 }
             },
-            error => {
+            error =>
+            {
                 Debug.Log("Got error getting titleData:");
                 Debug.Log(error.GenerateErrorReport());
             }
         );
     }
 
-    /*IEnumerator*/ void LoadLevelButtons(ParsedJSONClass p)
+    IEnumerator LoadLevelButtons(ParsedJSONClass p)
     {
         foreach (LevelData ld in p.levels)
         {
             GameObject instantiatedLevelButton = Instantiate(levelButtonPrefab, FindObjectOfType<HardTransforms>().LevelButtonsParent);
-            /*yield return StartCoroutine(*/instantiatedLevelButton.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage);
+            yield return StartCoroutine(instantiatedLevelButton.GetComponent<LevelButtonContainer>().UpdateContainer(ld.levelname, ld.levelbitmap, ld.levelimage));
             instantiatedLevelButton.GetComponent<Button>().onClick.AddListener(delegate
             {
                 selectedLevelMapDetails = ld.mapDetails;
@@ -123,6 +124,6 @@ public class MenuManager : MonoBehaviour//Singleton<MenuManager>
 
     public void UpdateCoin()
     {
-         FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
+        FindObjectOfType<HardTransforms>().coinText.text = GeneralInfo.Instance.coinCount.ToString();
     }
 }

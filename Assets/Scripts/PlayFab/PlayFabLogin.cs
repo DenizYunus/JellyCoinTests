@@ -73,6 +73,7 @@ public class PlayFabLogin : MonoBehaviour
                 else GeneralInfo.Instance.coinCount = Convert.ToInt32(result.Data["CoinCount"].Value); // GET PRE-CREATED COIN FROM PLAYFAB
 
                 commonNotificationText.text = "Login Successful";
+                GetUserData(loginResult.PlayFabId);
 
                 UnityEngine.SceneManagement.SceneManager.LoadScene(1);
 
@@ -81,6 +82,22 @@ public class PlayFabLogin : MonoBehaviour
                 Debug.Log(error.GenerateErrorReport());
             });
         }, error => Debug.Log("Error: " + error.GenerateErrorReport()));
+    }
+
+    void GetUserData(string myPlayFabeId)
+    {
+        PlayFabClientAPI.GetUserData(new GetUserDataRequest()
+        {
+            PlayFabId = myPlayFabeId,
+            Keys = null
+        }, result => {
+            Debug.Log("Got user data:");
+            if (result.Data == null || !result.Data.ContainsKey("Ancestor")) Debug.Log("No Ancestor");
+            else Debug.Log("Ancestor: " + result.Data["Ancestor"].Value);
+        }, (error) => {
+            Debug.Log("Got error retrieving user data:");
+            Debug.Log(error.GenerateErrorReport());
+        });
     }
 
     private void OnLoginFailure(PlayFabError error)
